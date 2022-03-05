@@ -89,7 +89,7 @@ def prk_sample_loop(model, cond_fn, x, schedule, key, x_fn=None):
     model_fn = mk_model_fn(model, cond_fn)
     for i in tqdm(range(schedule.shape[0]-1)):
         if x_fn is not None:
-            x = x_fn(x, schedule[i])
+            x = x_fn(x, schedule[i], rng)
         y, _, pred = prk_step(model_fn, x, schedule[i], schedule[i + 1], rng.split())
         yield {'step': i, 'x': x, 'pred': pred}
         x = y
@@ -105,7 +105,7 @@ def plms_sample_loop(model, cond_fn, x, schedule, key, x_fn=None):
     old_eps = []
     for i in tqdm(range(schedule.shape[0]-1)):
         if x_fn is not None:
-            x = x_fn(x, schedule[i])
+            x = x_fn(x, schedule[i], rng)
         if len(old_eps) < 3:
             y, eps, pred = prk_step(model_fn, x, schedule[i], schedule[i + 1], rng.split())
         else:
@@ -125,7 +125,7 @@ def ddim_sample_loop(model, cond_fn, x, schedule, key, eta=1.0, x_fn=None):
     model_fn = mk_model_fn(model, cond_fn)
     for i in tqdm(range(schedule.shape[0]-1)):
         if x_fn is not None:
-            x = x_fn(x, schedule[i])
+            x = x_fn(x, schedule[i], rng)
         y, pred = ddim_step(model_fn, x, schedule[i], schedule[i + 1], eta, rng.split())
         yield {'step': i, 'x': x, 'pred': pred}
         x = y
